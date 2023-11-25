@@ -22,7 +22,7 @@ steps:
    - '--port'
    - '8100'
 images:
- - 'us-central1-docker.pkg.dev/${_PROJECT_ID}/qwertyton/DemoBuild'
+ - 'us-central1-docker.pkg.dev/${_PROJECT_ID}/qwertyton/demo-build'
 
 substitutions:
   _PROJECT_ID: 'alien-gantry-285711'
