@@ -1,0 +1,328 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+    <link rel="stylesheet" href="mapstyle.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="station.css">
+    <link rel="stylesheet" href="user.css">
+    
+    <style>
+   
+   .loc img {
+          width: 25px; /* ทำให้ขนาดของรูปภาพเท่ากับความกว้างของพื้นที่ของ <p> */
+          max-width: 25px; /* ป้องกันรูปภาพที่มีขนาดใหญ่เกินไป */
+          height: auto; /* รักษาสัดส่วนของรูปภาพ */
+        }
+      </style>
+    <style>
+        .distance {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            
+        }
+    
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+    
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+    
+        input:hover {
+            border-color: #FF6F31;
+        }
+    
+        button {
+            background-color: #FF6F31;
+            color: #fff;
+            padding: 15px;
+            border: none;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            box-sizing: border-box;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+    
+        button:hover {
+            background-color: #FF8651;
+        }
+    
+        #distance-result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #FF6F31;
+            border-radius: 5px;
+            background-color: #FFF6F1;
+            font-weight: bold;
+            color: #FF6F31;
+            text-align: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+    
+        #distance-result:hover {
+            background-color: #FFEDDF;
+            color: #FF8651;
+        }
+
+        
+
+
+
+    </style>
+    
+</head>
+
+<body>
+
+    <div class="grid">
+        <div class="sidebar con">
+            <div class="logo">
+                <a href="">
+                    <img src="../homepage/photo/logo.png" alt="">
+                </a>
+            </div>
+
+            <div class="main-content">
+                <div class="name">
+                    <h3><span id="usernamePlaceholder"></span></h3>
+                </div>
+                    <!-- ข้อมูลของผู้ใช้จะแสดงที่นี่ -->
+                    <div class="logout">
+                        <p><a href="#" onclick="logout()" style="color: red;">Logout</a></p>
+                    </div>
+                
+            </div>
+    
+            
+   
+     
+
+
+            <ul>
+                <li>
+                    <a href="home.html">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span>View map</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="Bookinghistory.html">
+                        <i class="bi bi-calendar2-week-fill"></i>
+                        <span>Booking History</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="station.html">
+                        <i class="bi bi-ev-station"></i>
+                        <span>Station</span>
+                    </a>
+                </li>
+                <li>
+                    
+            </ul>
+
+        </div>
+        <div class="navbar con">
+
+            <div class="map">
+                <span><a href="home.html">Map</a></span>
+            </div>
+
+            <div class="station">
+                <span><a href="station.html">Booking</a></span>
+            </div>
+
+           
+        </div>
+
+        
+
+        <div class="content con">
+            
+      <div class="distance">
+
+        <h1>Maps Distance </h1>
+
+        <!-- Add the Places API script -->
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAHm1D6vj4xg02SAYrB8oYb3Vx4xx1wZ6k&libraries=places&callback=initMap" async defer></script>
+    
+        <script>
+           
+              // ตรวจสอบว่ามีข้อมูลผู้ใช้ที่เข้าสู่ระบบมาหรือไม่
+        const username = localStorage.getItem('username');
+        const userId = localStorage.getItem('userId');
+
+        if (username && userId) {
+            // แสดงข้อมูลผู้ใช้ที่เข้าสู่ระบบมา
+            document.getElementById('usernamePlaceholder').innerText = username;
+        } else {
+            // ไม่มีข้อมูลผู้ใช้, สามารถทำการ redirect หรือจัดการตามต้องการ
+            window.location = "login.html";
+        }
+
+        // เพิ่มฟังก์ชัน logout
+        function logout() {
+            localStorage.removeItem('username');
+            localStorage.removeItem('userId');
+            window.location = "/";
+        }
+
+
+           const apiKey = 'AIzaSyAHm1D6vj4xg02SAYrB8oYb3Vx4xx1wZ6k';
+            let originInput, destinationInput;
+            let originAutocomplete, destinationAutocomplete;
+    
+            function initMap() {
+                // Create the autocomplete object for the origin and destination inputs
+                originInput = document.getElementById('origin-input');
+                destinationInput = document.getElementById('destination-input');
+    
+                originAutocomplete = new google.maps.places.Autocomplete(originInput);
+                destinationAutocomplete = new google.maps.places.Autocomplete(destinationInput);
+            }
+    
+            function calculateDistanceMatrix() {
+                // Your code to use Distance Matrix API goes here
+                // Example: Create a DistanceMatrixService object
+                const distanceMatrixService = new google.maps.DistanceMatrixService();
+    
+                // Example: Get place details from the autocomplete objects
+                const originPlace = originAutocomplete.getPlace();
+                const destinationPlace = destinationAutocomplete.getPlace();
+    
+                // Example: Use place details to make a request to the Distance Matrix API
+                distanceMatrixService.getDistanceMatrix({
+                    origins: [originPlace.formatted_address],
+                    destinations: [destinationPlace.formatted_address],
+                    travelMode: 'DRIVING',
+                    unitSystem: google.maps.UnitSystem.METRIC,
+                    avoidHighways: false,
+                    avoidTolls: false
+                }, displayDistanceMatrix);
+            }
+    
+            function displayDistanceMatrix(response, status) {
+                // Your code to handle the API response goes here
+                // Example: Log the response to the console
+                console.log(response);
+    
+                // Display the distance result on the page
+                const distanceElement = document.getElementById('distance-result');
+                distanceElement.textContent = `Distance: ${response.rows[0].elements[0].distance.text}`;
+            }
+        </script>
+    
+        <!-- Add input fields for origin and destination -->
+        <label for="origin-input">Starting destination:</label>
+        <input id="origin-input" type="text" placeholder="Enter Starting destination">
+    
+        <label for="destination-input">Destination:</label>
+        <input id="destination-input" type="text" placeholder="Enter destination">
+    
+        <!-- Add button to trigger distance calculation -->
+        <button onclick="calculateDistanceMatrix()">Calculate Distance</button>
+    
+        <!-- Display the distance result -->
+        <div id="distance-result"></div>
+
+      </div>
+      
+      
+      <div class="constation">
+                
+           
+          
+          
+          
+        <div class="loc">
+            <h2>EVolt Charging Station</h2>
+            <p> 59 หมู่ 2 ถนนพหลโยธิน (พาน-เชียงราย) ตำบลจอมหมอกแก้ว Mae Lao District, Chiang Rai 57250</p>
+            <p class="facilities">Facilities: <span class="facility">Restrooms</span><span class="facility">Toilet</span> <span class="facility">Coffee Shop</span><span class="facility">Restaurant</span><span class="facility">Parking</span> <span class="facility">Shops</span></p>
+            <p>AC Type 2 43kW <img  src="../homepage/photo/ac.png" alt=""></p>
+            <a href="">Booking</a>
+            <a href="">Review</a>
+        </div>
+
+        <div class="loc">
+            <h2>PTT Station ปตท.มหาวิทยาลัยแม่ฟ้าหลวง</h2>
+            <p>  284 หมู่ที่ 10 Nang Lae, Mueang Chiang Rai District, Chiang Rai 57100</p>
+            <p class="facilities">Facilities: <span class="facility">Restrooms</span><span class="facility">Toilet</span> <span class="facility">Coffee Shop</span><span class="facility">Restaurant</span><span class="facility">Parking</span><span class="facility">WiFi</span> <span class="facility">Shops</span></p>
+            <p>AC Type 2 43kW <img  src="../homepage/photo/ac.png" alt=""></p>
+            <a href="">Booking</a>
+            <a href="">Review</a>
+        </div>
+        
+        <div class="loc">
+            <h2>ปั๊มเอสโซ่ หจก.ภาณุออยล์ เซอร์วิส</h2>
+            <p>   284 หมู่ 3 ถ.เชียงใหม่-เชียงราย ต.แม่สรวย อ, Mae Suai District, Chiang Rai 57180</p>
+            <p class="facilities">Facilities: <span class="facility">Restrooms</span><span class="facility">Toilet</span><span class="facility">Restaurant</span><span class="facility">Parking</span> <span class="facility">Shops</span></p>
+            <p>AC Type 2 43kW <img  src="../homepage/photo/ac.png" alt=""></p>
+            <a href="">Booking</a>
+            <a href="">Review</a>
+        </div>
+       
+           
+
+
+
+          
+
+            <div class="loc6">
+                <h2>PTT Station ปตท.ห้าแยกพ่อขุน (Oil & NGV & EV )เคยูออยล์</h2>
+                <p>Address: 347/2 หมู่ที่ 12 Mueang Chiang Rai District, Chiang Rai 57000</p>
+                
+                <p class="facilities">Facilities: <span class="facility">Restrooms</span><span class="facility">Toilet</span><span class="facility">Restaurant</span> <span class="facility">Coffee Shop</span><span class="facility">Parking</span> <span class="facility">Shops</span></p>
+               
+                <div class="but"><a  href="booking.html">Booking</a> </div>
+                <div class="but"> <a href="Location7.html">Review</a> </div>
+            </div>
+
+            <div class="loc7">
+                <h2>PTT Station ปตท.ริมกก (Oil&EV) หจก.ปัญญามอเตอร์ส</h2>
+                <p>Address: Rim Kok, Mueang Chiang Rai District, Chiang Rai 57100</p>
+                
+                <p class="facilities">Facilities: <span class="facility">Restrooms</span><span class="facility">Toilet</span><span class="facility">Restaurant</span> <span class="facility">Coffee Shop</span><span class="facility">Parking</span> <span class="facility">Shops</span></p>
+          
+                <div class="but"><a  href="booking.html">Booking</a> </div>
+                <div class="but"> <a href="Location7.html">Review</a> </div>
+            </div>
+
+           
+    
+        </div>
+        </div>
+        
+        
+    </div>
+
+</body>
+
+</html>
+
+
+
