@@ -22,7 +22,7 @@ steps:
    - '--port'
    - '8100'
 images:
- - '${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ github.repository }}'
+ - 'us-central1-docker.pkg.dev/${_PROJECT_ID}/demobuild/demobuild'
 
 substitutions:
   _PROJECT_ID: 'alien-gantry-285711'
